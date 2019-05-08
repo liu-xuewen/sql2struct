@@ -7,6 +7,8 @@ import (
 	"log"
 )
 
+
+
 func main() {
 	parser()
 }
@@ -25,6 +27,7 @@ func parser() {
 	h := flag.Bool("h", false, "帮助")
 	help := flag.Bool("help", false, "帮助")
 
+
 	// 开始
 	flag.Parse()
 
@@ -38,6 +41,10 @@ func parser() {
 		fmt.Println(fmt.Sprintf("\n version: %s\n %s\n using -h param for more help \n",
 			sql2struct.VERSION, sql2struct.VERSION_TEXT))
 		return
+	}
+
+	if sql2struct.Dsn!="" {
+		*dsn=sql2struct.Dsn
 	}
 
 	// 初始化
