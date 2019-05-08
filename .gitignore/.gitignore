@@ -1,0 +1,4 @@
+.idea/
+/db/
+/cmd/mysql2struct
+/sql2struct/
