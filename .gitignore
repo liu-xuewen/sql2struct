@@ -5,3 +5,5 @@
 /db/
 /local.go
 
+/mysql2struct-win.v0.0.1.exe
+/mysql2struct-linux.v0.0.1.bin

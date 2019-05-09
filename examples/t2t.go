@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/liu-xuewen/sql2struct"
+
+	"github.com/liu-xuewen/sql2struct/sql2struct"
 )
 
 func main() {
