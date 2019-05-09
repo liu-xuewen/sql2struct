@@ -151,7 +151,7 @@ func (t *Table2Struct) Run() error {
 		packageName = fmt.Sprintf("package %s\n\n", t.packageName)
 	}
 
-	fmt.Println("tableColumns--", tableColumns)
+	// fmt.Println("tableColumns--", tableColumns)
 
 	// 组装struct
 	var structContent string
@@ -180,7 +180,8 @@ func (t *Table2Struct) Run() error {
 		}
 		depth := 1
 
-		fmt.Println("tableName----", tableName)
+		// fmt.Println("tableName----", tableName)
+
 		structContent += "type " + tableName + " struct {\n"
 		for _, v := range item {
 			//structContent += tab(depth) + v.ColumnName + " " + v.Type + " " + v.Json + "\n"
@@ -275,6 +276,8 @@ func (t *Table2Struct) getColumns(table ...string) (tableColumns map[string][]co
 
 	defer rows.Close()
 
+	columnAllSelect := make([]string, 0)
+
 	for rows.Next() {
 		col := column{}
 		err = rows.Scan(&col.ColumnName, &col.Type, &col.Nullable, &col.TableName, &col.ColumnComment)
@@ -284,6 +287,7 @@ func (t *Table2Struct) getColumns(table ...string) (tableColumns map[string][]co
 			return
 		}
 
+		columnAllSelect = append(columnAllSelect, "`"+col.ColumnName+"`")
 		//col.Json = strings.ToLower(col.ColumnName)
 		col.Tag = col.ColumnName
 		col.ColumnComment = col.ColumnComment
@@ -319,6 +323,12 @@ func (t *Table2Struct) getColumns(table ...string) (tableColumns map[string][]co
 		}
 		tableColumns[col.TableName] = append(tableColumns[col.TableName], col)
 	}
+
+	fmt.Println()
+	// fmt.Println("--columnAllSelect---", columnAllSelect)
+	columnAllSelectStr := strings.Join(columnAllSelect, ",")
+	fmt.Println("[all column]: ", columnAllSelectStr)
+	fmt.Println()
 	return
 }
 

@@ -43,7 +43,7 @@ func parser() {
 
 	// Dsn  can set in sql2struct.localConfig.go at first
 	if sql2struct.Dsn != "" {
-		fmt.Println("ql2struct.Dsn--", sql2struct.Dsn)
+		fmt.Println("[ql2struct.Dsn]: ", sql2struct.Dsn)
 		*dsn = sql2struct.Dsn
 	}
 
