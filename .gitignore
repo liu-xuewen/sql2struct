@@ -1,7 +1,6 @@
 .idea/
 
 /cmd/mysql2struct
-/sql2struct/
 /db/
 /local.go
 
