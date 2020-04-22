@@ -7,7 +7,7 @@ go run cli.go  --file model.go --dsn root:root@tcp\(localhost:3306\)/test?charse
 
 2. 编译运行
 ```sh
- go build -o mysql2struct cli.go
+ go build -o mysql2struct main.go
  ./mysql2struct  -table tt
 ./mysql2struct -dsn "aa:bb@tcp(192.168.0.0:3323)/tt?charset=utf8&parseTime=True&loc=Local" -table tt
 ```

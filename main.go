@@ -17,7 +17,7 @@ func parser() {
 	file := flag.String("file", "", "保存路径")
 	table := flag.String("table", "", "要迁移的表")
 	realNameMethod := flag.String("realNameMethod", "", "结构体对应的表名")
-	packageName := flag.String("packageName", "db", "生成的struct包名")
+	packageName := flag.String("packageName", "model", "生成的struct包名")
 	tagKey := flag.String("tagKey", "gorm", "字段tag的key")
 	prefix := flag.String("prefix", "", "表前缀")
 	version := flag.Bool("version", false, "版本号")
@@ -26,6 +26,8 @@ func parser() {
 	h := flag.Bool("h", false, "帮助")
 	help := flag.Bool("help", false, "帮助")
 
+
+	realNameMethod=table
 	// 开始
 	flag.Parse()
 

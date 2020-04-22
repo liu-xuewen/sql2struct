@@ -146,7 +146,7 @@ func (t *Table2Struct) Run() error {
 	// 包名
 	var packageName string
 	if t.packageName == "" {
-		packageName = "package db\n\n"
+		packageName = "package model\n\n"
 	} else {
 		packageName = fmt.Sprintf("package %s\n\n", t.packageName)
 	}
@@ -181,7 +181,8 @@ func (t *Table2Struct) Run() error {
 		depth := 1
 
 		// fmt.Println("tableName----", tableName)
-
+		structContent += fmt.Sprintf(" // %s 表结构\n",
+			tableName)
 		structContent += "type " + tableName + " struct {\n"
 		for _, v := range item {
 			//structContent += tab(depth) + v.ColumnName + " " + v.Type + " " + v.Json + "\n"
@@ -195,14 +196,15 @@ func (t *Table2Struct) Run() error {
 		}
 		structContent += tab(depth-1) + "}\n\n"
 
+
+		structContent += " // TableName 表名\n"
 		// 添加 method 获取真实表名
-		if t.realNameMethod != "" {
-			structContent += fmt.Sprintf("func (*%s) %s() string {\n",
-				tableName, t.realNameMethod)
-			structContent += fmt.Sprintf("%sreturn \"%s\"\n",
-				tab(depth), tableRealName)
-			structContent += "}\n\n"
-		}
+		structContent += fmt.Sprintf("func (%s) TableName() string {\n",
+			tableName)
+		structContent += fmt.Sprintf("%sreturn \"%s\"\n",
+			tab(depth), tableRealName)
+		structContent += "}\n\n"
+
 		fmt.Println(structContent)
 	}
 
@@ -277,7 +279,7 @@ func (t *Table2Struct) getColumns(table ...string) (tableColumns map[string][]co
 	defer rows.Close()
 
 	columnAllSelect := make([]string, 0)
-
+	columnMap:=make(map[string]string,0)
 	for rows.Next() {
 		col := column{}
 		err = rows.Scan(&col.ColumnName, &col.Type, &col.Nullable, &col.TableName, &col.ColumnComment)
@@ -310,24 +312,40 @@ func (t *Table2Struct) getColumns(table ...string) (tableColumns map[string][]co
 		if t.tagKey == "" {
 			t.tagKey = "gorm"
 		}
+
+		columnKey:=col.Tag
 		if !t.enableJsonTag {
 			//col.Json = fmt.Sprintf("`json:\"%s\" %s:\"%s\"`", col.Json, t.config.TagKey, col.Json)
 			col.Tag = fmt.Sprintf("`%s:\"%s\"`", t.tagKey, col.Tag)
 		} else {
 
-			col.Tag = fmt.Sprintf("`%s:\"%s\" json:\"%s\"`", t.tagKey, col.Tag, col.Tag)
+			col.Tag = fmt.Sprintf("`%s:\"column:%s\" json:\"%s\"`", t.tagKey, col.Tag, col.Tag)
 		}
 		//columns = append(columns, col)
 		if _, ok := tableColumns[col.TableName]; !ok {
 			tableColumns[col.TableName] = []column{}
 		}
 		tableColumns[col.TableName] = append(tableColumns[col.TableName], col)
+
+		columnMap[columnKey]=col.ColumnName
 	}
 
 	fmt.Println()
 	// fmt.Println("--columnAllSelect---", columnAllSelect)
 	columnAllSelectStr := strings.Join(columnAllSelect, ",")
 	fmt.Println("[all column]: ", columnAllSelectStr)
+
+
+	fmt.Println()
+
+	object:=t.camelCaseToLower(t.table)
+
+	fmt.Println("t.table:",t.table)
+	fmt.Println("object:",object)
+
+	for key,val:=range columnMap{
+		fmt.Println(fmt.Sprintf("\"%s\":%s.%s,",key,object, val))
+	}
 	fmt.Println()
 	return
 }
@@ -356,6 +374,48 @@ func (t *Table2Struct) camelCase(str string) string {
 	}
 	return text
 }
+
+func (t *Table2Struct) camelCaseToLower(str string) string {
+	// 是否有表前缀, 设置了就先去除表前缀
+	if t.prefix != "" {
+		str = strings.Replace(str, t.prefix, "", 1)
+	}
+	var text string
+	//for _, p := range strings.Split(name, "_") {
+	for k, p := range strings.Split(str, "_") {
+		// 字段首字母大写的同时, 是否要把其他字母转换为小写
+		switch len(p) {
+		case 0:
+		case 1:
+			if k==0{
+				text += strings.ToLower(p[0:1])
+			}else{
+				text += strings.ToLower(p[0:1])
+		}
+
+		default:
+			// 字符长度大于1时
+			if t.config.UcFirstOnly == true {
+				if k==0{
+					text += strings.ToLower(p[0:1]) + strings.ToLower(p[1:])
+				}else{
+					text += strings.ToUpper(p[0:1]) + strings.ToLower(p[1:])
+				}
+
+			} else {
+
+				if k==0{
+					text += strings.ToLower(p[0:1]) + p[1:]
+				}else{
+					text += strings.ToUpper(p[0:1]) + p[1:]
+				}
+
+			}
+		}
+	}
+	return text
+}
+
 func tab(depth int) string {
 	return strings.Repeat("\t", depth)
 }
